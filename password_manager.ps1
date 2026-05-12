@@ -1,4 +1,4 @@
-﻿##############################################################################
+##############################################################################
 #  Script: password_manager.ps1
 #    Date: 05.11.2026
 # Version: 1.0
@@ -12,11 +12,13 @@ $pslist = "$env:USERPROFILE\Documents\pslist.xlsx"
 
 if ($(Test-Path $pslist) -eq $false)
 {
-    Write-Host "ERROR: Password list not found" -ForegroundColor Red
-    Write-Host "Creating Password list at $env:USERPROFILE\Documents\pslist.xlsx" -ForegroundColor Cyan
+    Write-Host "Password list not found!" -ForegroundColor Red
+    Start-Sleep 1
+    Write-Host "Creating Password list at $env:USERPROFILE\Documents\pslist.xlsx..." -ForegroundColor Cyan
     $check = $true
     While ($check -eq $true)
     {
+        Start-Sleep 1
         Write-Host "Enter Password to lock Password List:" -ForegroundColor Yellow
         $pass1 = Read-Host -AsSecureString
         Write-Host "Re-enter Password:" -ForegroundColor Yellow
@@ -27,11 +29,12 @@ if ($(Test-Path $pslist) -eq $false)
         if ($pass2_txt -ne $pass1_txt)
         {
             Write-Host "[!] ERROR: The passwords you entered do not match!" -ForegroundColor Red
+            Start-Sleep 1
             $check = $true
         }
         elseif ($pass2_txt -eq $pass1_txt)
         {
-            Write-Host "Continuing" -ForegroundColor Cyan
+            Write-Host "Continuing..." -ForegroundColor Cyan
             $check = $false
         }
     }
@@ -52,7 +55,9 @@ if ($(Test-Path $pslist) -eq $false)
         $row++
     }
     $excel.ActiveWorkbook.SaveAs($pslist, 51, $pass1_txt)
+    Start-Sleep 1
     $excel.quit()
+    Get-Process -Name *excel* | Stop-Process
     Write-Host "[+] Password list created at $env:USERPROFILE\Documents\pslist.xlsx" -ForeGroundColor Green
 }
 
@@ -84,7 +89,9 @@ if ($(Test-Path $pslist) -eq $true)
     if (($attempts -ge 3) -and ($attempts -lt 5))
     {
         Write-Host "[!] Too many incorrect attempts... If you forgot your password, delete `"$pslist`" and start over." -ForegroundColor Magenta 
+        Start-Sleep 1
         $excel.quit()
+        Get-Process -Name *excel* | Stop-Process
         exit
     }
     Write-Host "Successfully authenticated!" -ForegroundColor Green
@@ -142,12 +149,16 @@ if ($(Test-Path $pslist) -eq $true)
                 {
                     Write-Host "Adding password for $site..." -ForegroundColor Cyan
                     $worksheet.Cells.Item($row, $($column+1)).value = $siteps2_txt
+                    Start-Sleep 1
                     Write-Host "[+] Password successfully added to $site!" -ForegroundColor Green
-                    Write-Host "Setting $site's password to clipboard" -ForegroundColor Green
+                    Start-Sleep 1
+                    Write-Host "[+] $site's password set to clipboard" -ForegroundColor Green
                     Set-Clipboard $siteps2_txt
                     $excel.ActiveWorkbook.Save()
                     $attempts = 5
                     $excel.quit()
+                    Get-Process -Name *excel* | Stop-Process
+                    
                 
                 }
             }
@@ -155,7 +166,9 @@ if ($(Test-Path $pslist) -eq $true)
             if (($attempts -ge 3) -and ($attempts -lt 5))
             {
                 Write-Host "[!] Too many failed attempts... Try again later..." -ForegroundColor Magenta
+                Start-Sleep 1
                 $excel.quit()
+                Get-Process -Name *excel* | Stop-Process
                 exit
             }
         }
@@ -163,15 +176,18 @@ if ($(Test-Path $pslist) -eq $true)
         {
             Write-Host "Cya!" -ForegroundColor Magenta 
             $excel.Quit()
+            Get-Process -Name *excel* | Stop-Process
             exit
         }
     }
     
     elseif ($password -ne "")
     {
-        Write-Host "[+] Setting $site's password to clipboard" -ForegroundColor Green
+        Start-Sleep 1
+        Write-Host "[+] $site's password set to clipboard" -ForegroundColor Green
         Set-Clipboard $password
         $excel.Quit()
+        Get-Process -Name *excel* | Stop-Process
     }
         
 }
